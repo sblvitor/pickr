@@ -3,6 +3,7 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 
 import appCss from "../styles.css?url"
+import { ThemeProvider } from "@/providers/theme-provider"
 
 export const Route = createRootRoute({
   head: () => ({
@@ -30,12 +31,14 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body>
-        {children}
+        <ThemeProvider defaultTheme="auto" storageKey="pickr-ui-theme">
+          {children}
+        </ThemeProvider>
         <TanStackDevtools
           config={{
             position: "bottom-right",
