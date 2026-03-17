@@ -1,4 +1,5 @@
 import { Moon, Sun, SunMoon } from 'lucide-react'
+import { useEffect, useState } from "react"
 import { Button } from "./ui/button"
 import type {Theme} from "@/providers/theme-provider";
 import { useTheme } from "@/providers/theme-provider"
@@ -15,7 +16,14 @@ const themeConfig = {
 export const ThemeToggle = () => {
 
   const { theme, setTheme } = useTheme()
-  const { icon: Icon, label, next } = themeConfig[theme]
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const stableTheme: Theme = mounted ? theme : "auto"
+  const { icon: Icon, label, next } = themeConfig[stableTheme]
 
   return (
     <Button
