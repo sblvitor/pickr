@@ -1,17 +1,15 @@
+// src/pages/home.tsx
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowRight,
-  LogIn,
   Shuffle,
-  Sparkles,
   Users,
   Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme-toggle";
-
 
 const floatingWords = [
   "Pizza or Sushi?",
@@ -24,15 +22,9 @@ const floatingWords = [
   "Spotify or Vinyl?",
 ];
 
-function FloatingWord({
-  word,
-  index,
-}: {
-  word: string;
-  index: number;
-}) {
+function FloatingWord({ word, index }: { word: string; index: number }) {
   const positions = [
-    { top: "8%", left: "8%" },
+    { top: "8%", left: "5%" },
     { top: "15%", right: "8%" },
     { top: "35%", left: "3%" },
     { top: "45%", right: "4%" },
@@ -46,13 +38,10 @@ function FloatingWord({
 
   return (
     <motion.span
-      className="pointer-events-none absolute hidden select-none font-mono text-[0.7rem] tracking-wider text-foreground/[0.07] sm:text-sm md:block"
+      className="pointer-events-none absolute hidden select-none font-mono text-[0.7rem] font-medium tracking-wider text-floating-text sm:text-sm md:block"
       style={pos}
       initial={{ opacity: 0, y: 20 }}
-      animate={{
-        opacity: 1,
-        y: [0, -8, 0],
-      }}
+      animate={{ opacity: 1, y: [0, -8, 0] }}
       transition={{
         opacity: { delay: 1.5 + index * 0.2, duration: 1 },
         y: {
@@ -97,22 +86,19 @@ export default function Home() {
 
   return (
     <div className="relative flex min-h-svh flex-col overflow-hidden bg-background text-foreground transition-colors duration-500">
-      {/* Grain overlay */}
+      {/* Minimal film grain — lighter in dark mode (high contrast makes noise harsh) */}
       <div
-        className="pointer-events-none fixed inset-0 z-50 opacity-[0.03]"
+        className="pointer-events-none fixed inset-0 z-50 opacity-[0.008] mix-blend-multiply dark:opacity-[0.0025] dark:mix-blend-overlay"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
         }}
       />
 
       {/* Background gradient blobs */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute -left-1/4 -top-1/4 h-[600px] w-[600px] rounded-full bg-amber-400/10 blur-[120px] dark:bg-amber-500/[0.07]"
-          animate={{
-            x: [0, 40, 0],
-            y: [0, 30, 0],
-          }}
+          className="absolute -left-1/4 -top-1/4 h-[600px] w-[600px] rounded-full bg-surface-glow blur-[120px]"
+          animate={{ x: [0, 40, 0], y: [0, 30, 0] }}
           transition={{
             duration: 20,
             repeat: Infinity,
@@ -120,11 +106,8 @@ export default function Home() {
           }}
         />
         <motion.div
-          className="absolute -bottom-1/4 -right-1/4 h-[500px] w-[500px] rounded-full bg-orange-500/10 blur-[100px] dark:bg-orange-500/5"
-          animate={{
-            x: [0, -30, 0],
-            y: [0, -40, 0],
-          }}
+          className="absolute -bottom-1/4 -right-1/4 h-[500px] w-[500px] rounded-full bg-surface-glow-secondary blur-[100px]"
+          animate={{ x: [0, -30, 0], y: [0, -40, 0] }}
           transition={{
             duration: 16,
             repeat: Infinity,
@@ -146,44 +129,19 @@ export default function Home() {
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
         <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-amber-500 shadow-md shadow-amber-500/25">
-            <Shuffle className="size-4 text-white" strokeWidth={2.5} />
+          <div className="flex size-8 items-center justify-center rounded-md bg-primary shadow-md shadow-primary-glow ring-1 ring-primary-foreground/15">
+            <Shuffle className="size-4 text-primary-foreground" strokeWidth={2.5} />
           </div>
-          <span className="font-display text-lg font-bold tracking-tight">
+          <span className="font-display text-lg font-bold tracking-tight text-foreground">
             Pickr
           </span>
         </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-2 text-muted-foreground hover:text-foreground"
-            onClick={() => console.log("open join dialog")}
-          >
-            <LogIn className="size-4" />
-            <span className="hidden sm:inline">Entrar em sessão</span>
-          </Button>
-
-          <ThemeToggle />
-        </div>
+        <ThemeToggle />
       </motion.header>
 
       {/* Main content */}
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-6">
         <div className="flex w-full max-w-xl flex-col items-center">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-          >
-            <div className="mb-8 flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-4 py-1.5 text-xs font-medium tracking-wide text-amber-700 dark:text-amber-400">
-              <Sparkles className="size-3.5" />
-              Decisões colaborativas em tempo real
-            </div>
-          </motion.div>
-
           {/* Title */}
           <motion.h1
             className="text-center font-display text-5xl font-extrabold leading-[1.1] tracking-tight sm:text-7xl"
@@ -196,7 +154,7 @@ export default function Home() {
               <AnimatePresence mode="wait">
                 <motion.span
                   key={currentWordIndex}
-                  className="inline-block bg-linear-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent"
+                  className="inline-block bg-linear-to-r from-gradient-from to-gradient-to bg-clip-text text-transparent"
                   initial={{ opacity: 0, y: 16, filter: "blur(4px)" }}
                   animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                   exit={{ opacity: 0, y: -16, filter: "blur(4px)" }}
@@ -206,7 +164,7 @@ export default function Home() {
                 </motion.span>
               </AnimatePresence>
               <motion.span
-                className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full bg-linear-to-r from-amber-500 to-orange-500"
+                className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full bg-linear-to-r from-gradient-from to-gradient-to"
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
                 transition={{ delay: 0.8, duration: 0.6 }}
@@ -242,61 +200,74 @@ export default function Home() {
                 value={sessionName}
                 onChange={(e) => setSessionName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-                className="h-12 rounded-xl border-border/60 bg-background/80 pl-4 pr-4 text-base shadow-sm backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/50 focus-visible:border-amber-500/50 focus-visible:ring-amber-500/20"
+                className="h-12 rounded-xl border-border/60 bg-background/80 pl-4 pr-4 text-base shadow-sm backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/50 focus-visible:border-primary/50 focus-visible:ring-primary/20"
               />
             </div>
             <Button
               onClick={handleCreate}
               disabled={!sessionName.trim()}
-              className="h-12 gap-2 rounded-xl bg-linear-to-r from-amber-500 to-orange-500 px-6 text-base font-semibold text-white shadow-lg shadow-amber-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-amber-500/30 hover:brightness-110 disabled:opacity-40 disabled:shadow-none"
+              className="h-12 gap-2 rounded-xl bg-linear-to-r from-gradient-from to-gradient-to px-6 text-base font-semibold text-primary-foreground shadow-lg shadow-primary-glow ring-1 ring-primary-foreground/20 transition-all duration-200 hover:brightness-[1.06] disabled:opacity-40 disabled:shadow-none"
             >
               Criar sessão
               <ArrowRight className="size-4" />
             </Button>
           </motion.div>
 
+          <motion.div
+            className="my-4 flex w-full items-center gap-4 px-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.70, duration: 0.6 }}
+          >
+            <div className="h-px flex-1 bg-border/60" />
+            <span className="text-xs font-medium tracking-widest text-muted-foreground/60 uppercase">
+              ou
+            </span>
+            <div className="h-px flex-1 bg-border/60" />
+          </motion.div>
+
+          <motion.div
+            className="w-full"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.80, duration: 0.6 }}
+          >
+            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+              <Button
+                variant="outline"
+                // onClick={handleJoinSession}
+                className="group h-12 w-full gap-3 rounded-xl border-border/70 bg-card/60 font-display text-sm font-semibold tracking-wide text-foreground/85 backdrop-blur-sm transition-all hover:border-primary/40 hover:bg-card/90 hover:text-foreground"
+              >
+                <Users className="size-4 text-muted-foreground transition-colors group-hover:text-primary" />
+                Entrar com código
+              </Button>
+            </motion.div>
+          </motion.div>
+
           {/* Features */}
           <motion.div
-            className="mt-16 grid w-full max-w-lg grid-cols-3 gap-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 0.8 }}
-          >
-            {[
-              {
-                icon: <Users className="size-5" />,
-                label: "Colaborativo",
-                desc: "Em tempo real",
-              },
-              {
-                icon: <Zap className="size-5" />,
-                label: "Instantâneo",
-                desc: "Sem cadastro",
-              },
-              {
-                icon: <Shuffle className="size-5" />,
-                label: "Aleatório",
-                desc: "Justo pra todos",
-              },
-            ].map((feat, i) => (
-              <motion.div
-                key={feat.label}
-                className="flex flex-col items-center gap-2 rounded-2xl border border-border/40 bg-card/50 p-4 backdrop-blur-sm"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.1 + i * 0.1, duration: 0.5 }}
-                whileHover={{ y: -2, transition: { duration: 0.2 } }}
-              >
-                <div className="flex size-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                  {feat.icon}
-                </div>
-                <span className="text-sm font-semibold">{feat.label}</span>
-                <span className="text-xs text-muted-foreground">
-                  {feat.desc}
-                </span>
-              </motion.div>
-            ))}
-          </motion.div>
+          className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground/50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 0.8 }}
+        >
+          {[
+            { icon: Users, label: "Colaboração ao vivo" },
+            { icon: Shuffle, label: "Escolha aleatória" },
+            { icon: Zap, label: "Decisões instantâneas" },
+          ].map((feature, i) => (
+            <motion.div
+              key={feature.label}
+              className="flex items-center gap-1.5"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 + i * 0.1, duration: 0.5 }}
+            >
+              <feature.icon className="h-3.5 w-3.5" />
+              <span className="font-medium tracking-wide">{feature.label}</span>
+            </motion.div>
+          ))}
+        </motion.div>
         </div>
       </main>
 
