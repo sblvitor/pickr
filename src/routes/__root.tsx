@@ -3,6 +3,9 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import { ThemeProvider } from '@lonik/themer'
 import appCss from "../styles.css?url"
+import { AppHeader } from "@/components/app-header"
+import { FilmGrain } from "@/components/film-grain"
+import { BackgroundBlobs } from "@/components/bg-blobs"
 
 export const Route = createRootRoute({
   head: () => ({
@@ -40,7 +43,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           storage="localStorage"
           storageKey="pickr-ui-theme"
         >
-          {children}
+          <div className="relative flex min-h-svh flex-col overflow-hidden bg-background text-foreground transition-colors duration-500">
+            <FilmGrain />
+            <BackgroundBlobs />
+            <AppHeader />
+            {children}
+          </div>
         </ThemeProvider>
         <TanStackDevtools
           config={{

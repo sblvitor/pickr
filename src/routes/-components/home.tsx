@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 const floatingWords = [
   "Pizza or Sushi?",
@@ -85,59 +84,11 @@ export default function Home() {
   };
 
   return (
-    <div className="relative flex min-h-svh flex-col overflow-hidden bg-background text-foreground transition-colors duration-500">
-      {/* Minimal film grain — lighter in dark mode (high contrast makes noise harsh) */}
-      <div
-        className="pointer-events-none fixed inset-0 z-50 opacity-[0.008] mix-blend-multiply dark:opacity-[0.0025] dark:mix-blend-overlay"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-        }}
-      />
-
-      {/* Background gradient blobs */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute -left-1/4 -top-1/4 h-[600px] w-[600px] rounded-full bg-surface-glow blur-[120px]"
-          animate={{ x: [0, 40, 0], y: [0, 30, 0] }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute -bottom-1/4 -right-1/4 h-[500px] w-[500px] rounded-full bg-surface-glow-secondary blur-[100px]"
-          animate={{ x: [0, -30, 0], y: [0, -40, 0] }}
-          transition={{
-            duration: 16,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-      </div>
-
+    <>
       {/* Floating background words */}
       {floatingWords.map((word, i) => (
         <FloatingWord key={word} word={word} index={i} />
       ))}
-
-      {/* Header */}
-      <motion.header
-        className="relative z-10 flex items-center justify-between px-6 py-5 sm:px-10"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-      >
-        <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-md bg-primary shadow-md shadow-primary-glow ring-1 ring-primary-foreground/15">
-            <Shuffle className="size-4 text-primary-foreground" strokeWidth={2.5} />
-          </div>
-          <span className="font-display text-lg font-bold tracking-tight text-foreground">
-            Pickr
-          </span>
-        </div>
-        <ThemeToggle />
-      </motion.header>
 
       {/* Main content */}
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-6">
@@ -270,16 +221,6 @@ export default function Home() {
         </motion.div>
         </div>
       </main>
-
-      {/* Footer */}
-      <motion.footer
-        className="relative z-10 py-6 text-center text-xs text-muted-foreground/50"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 0.6 }}
-      >
-        Feito com ◆ para decisões impossíveis
-      </motion.footer>
-    </div>
+    </>
   );
 }
