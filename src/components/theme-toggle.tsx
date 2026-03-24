@@ -1,37 +1,40 @@
 import { Moon, Sun, SunMoon } from 'lucide-react'
-import { useEffect, useState } from "react"
+import { useTheme } from '@lonik/themer'
+import { useHydrated } from '@tanstack/react-router'
 import { Button } from "./ui/button"
-import type {Theme} from "@/providers/theme-provider";
-import { useTheme } from "@/providers/theme-provider"
 
-const themeConfig = {
-  dark: { icon: Moon, label: "Escuro", next: "light" },
-  light: { icon: Sun, label: "Claro", next: "auto" },
-  auto: { icon: SunMoon, label: "Sistema", next: "dark" },
-} as const satisfies Record<
-  Theme,
-  { icon: React.ComponentType; label: string; next: Theme }
->
+const themeOrder = ["system", "light", "dark"] as const
+type ThemeValue = (typeof themeOrder)[number]
 
 export const ThemeToggle = () => {
-
   const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
+  const currentTheme: ThemeValue = theme as ThemeValue
+  const hydrated = useHydrated()
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const nextTheme = (value: ThemeValue): ThemeValue => {
+    const index = themeOrder.indexOf(value)
+    return themeOrder[(index + 1) % themeOrder.length]
+  }
 
-  const stableTheme: Theme = mounted ? theme : "auto"
-  const { icon: Icon, label, next } = themeConfig[stableTheme]
+  const icon = 
+    currentTheme === 'light' ? (
+      <Sun />
+    ) : currentTheme === 'dark' ? (
+      <Moon />
+    ) : (
+      <SunMoon />
+    )
 
   return (
     <Button
+      suppressHydrationWarning
       variant={'outline'}
-      onClick={() => setTheme(next)}
+      type="button"
+      aria-label={`Tema: ${currentTheme}. Clique para alterar tema`}
+      title={`Tema: ${currentTheme}`}
+      onClick={() => setTheme(nextTheme(currentTheme))}
     >
-      <Icon />
-      {label}
+      {hydrated && icon}
     </Button>
   )
 }

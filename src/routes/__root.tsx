@@ -1,9 +1,8 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 import { TanStackDevtools } from "@tanstack/react-devtools"
-
+import { ThemeProvider } from '@lonik/themer'
 import appCss from "../styles.css?url"
-import { ThemeProvider } from "@/providers/theme-provider"
 
 export const Route = createRootRoute({
   head: () => ({
@@ -36,7 +35,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <ThemeProvider defaultTheme="auto" storageKey="pickr-ui-theme">
+        <ThemeProvider
+          defaultTheme="system" 
+          storage="localStorage"
+          storageKey="pickr-ui-theme"
+        >
           {children}
         </ThemeProvider>
         <TanStackDevtools
