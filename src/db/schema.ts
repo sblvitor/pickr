@@ -1,7 +1,8 @@
-import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const sessions = pgTable("sessions", {
-  id: text("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: text("code").notNull().unique(),
   topic: text("topic").notNull(),
   chosenOption: text("chosen_option"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

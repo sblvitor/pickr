@@ -8,6 +8,13 @@
       "when": 1774400720860,
       "tag": "0000_elite_iron_lad",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774496763171,
+      "tag": "0001_dashing_wiccan",
+      "breakpoints": true
     }
   ]
 }
