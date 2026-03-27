@@ -15,6 +15,13 @@
       "when": 1774496763171,
       "tag": "0001_dashing_wiccan",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774584320496,
+      "tag": "0002_round_zemo",
+      "breakpoints": true
     }
   ]
 }

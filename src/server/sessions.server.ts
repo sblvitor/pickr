@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid'
 import { eq } from 'drizzle-orm';
 import { db } from "@/db";
-import { sessions } from "@/db/schema";
+import { sessionMembers, sessions } from "@/db/schema";
 
 async function generateUniqueCode() {
   const code = nanoid(5).toUpperCase()
@@ -16,11 +16,26 @@ async function generateUniqueCode() {
   return code 
 }
 
-export async function createSession(topic: string) {
+function normalizeNickname(nickname?: string) {
+  const trimmedNickname = nickname?.trim()
+  return trimmedNickname && trimmedNickname.length > 0 ? trimmedNickname : "Host"
+}
+
+export async function createSession(topic: string, hostNickname?: string) {
   const code = await generateUniqueCode()
-  await db.insert(sessions).values({
+  const [session] = await db.insert(sessions).values({
     code,
     topic
+  }).returning({
+    id: sessions.id,
+    code: sessions.code,
   })
-  return { code }
+
+  await db.insert(sessionMembers).values({
+    sessionId: session.id,
+    nickname: normalizeNickname(hostNickname),
+    isHost: true,
+  })
+
+  return { code: session.code }
 }
