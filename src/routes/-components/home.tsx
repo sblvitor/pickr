@@ -1,14 +1,13 @@
-// src/pages/home.tsx
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import {
-  ArrowRight,
-  Shuffle,
-  Users,
-  Zap,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react"
+import { AnimatePresence, motion } from "motion/react"
+import { ArrowRight, LogIn, Shuffle, Users, Zap } from "lucide-react"
+import { useRouter } from "@tanstack/react-router"
+import { useServerFn } from "@tanstack/react-start"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { saveSessionIdentity } from "@/lib/session-identity"
+import { normalizeSessionCode } from "@/lib/session-model"
+import { createSessionFn } from "@/server/sessions.functions"
 
 const floatingWords = [
   "Pizza or Sushi?",
@@ -19,7 +18,7 @@ const floatingWords = [
   "Cats or Dogs?",
   "Morning or Night?",
   "Spotify or Vinyl?",
-];
+]
 
 function FloatingWord({ word, index }: { word: string; index: number }) {
   const positions = [
@@ -31,13 +30,13 @@ function FloatingWord({ word, index }: { word: string; index: number }) {
     { top: "70%", right: "6%" },
     { top: "82%", left: "4%" },
     { top: "88%", right: "10%" },
-  ];
+  ]
 
-  const pos = positions[index % positions.length];
+  const pos = positions[index % positions.length]
 
   return (
     <motion.span
-      className="pointer-events-none absolute hidden select-none font-mono text-[0.7rem] font-medium tracking-wider text-floating-text sm:text-sm md:block"
+      className="pointer-events-none absolute hidden font-mono text-[0.7rem] font-medium tracking-wider text-floating-text select-none sm:text-sm md:block"
       style={pos}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: [0, -8, 0] }}
@@ -53,12 +52,17 @@ function FloatingWord({ word, index }: { word: string; index: number }) {
     >
       {word}
     </motion.span>
-  );
+  )
 }
 
 export default function Home() {
-  const [sessionName, setSessionName] = useState("");
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [sessionName, setSessionName] = useState("")
+  const [joinCode, setJoinCode] = useState("")
+  const [currentWordIndex, setCurrentWordIndex] = useState(0)
+  const [isCreating, setIsCreating] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
+  const router = useRouter()
+  const createSession = useServerFn(createSessionFn)
 
   const cycleWords = [
     "jantar",
@@ -69,19 +73,58 @@ export default function Home() {
     "nome",
     "presente",
     "rolê",
-  ];
+  ]
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentWordIndex((prev) => (prev + 1) % cycleWords.length);
-    }, 2200);
-    return () => clearInterval(interval);
-  }, []);
+      setCurrentWordIndex((prev) => (prev + 1) % cycleWords.length)
+    }, 2200)
+    return () => clearInterval(interval)
+  }, [])
 
-  const handleCreate = () => {
-    if (!sessionName.trim()) return;
-    console.log("Creating session:", sessionName);
-  };
+  const handleCreate = async () => {
+    if (!sessionName.trim() || isCreating) return
+
+    setIsCreating(true)
+    setCreateError(null)
+
+    try {
+      const result = await createSession({
+        data: {
+          topic: sessionName,
+        },
+      })
+
+      saveSessionIdentity(result.code, {
+        memberId: result.memberId,
+        nickname: result.nickname,
+      })
+
+      await router.navigate({
+        to: "/$code",
+        params: { code: result.code },
+      })
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Nao foi possivel criar a sessao."
+      setCreateError(message)
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
+  const handleGoToSession = async () => {
+    const code = normalizeSessionCode(joinCode)
+
+    if (!code) return
+
+    await router.navigate({
+      to: "/$code",
+      params: { code },
+    })
+  }
 
   return (
     <>
@@ -95,7 +138,7 @@ export default function Home() {
         <div className="flex w-full max-w-xl flex-col items-center">
           {/* Title */}
           <motion.h1
-            className="text-center font-display text-5xl font-extrabold leading-[1.1] tracking-tight sm:text-7xl"
+            className="text-center font-display text-5xl leading-[1.1] font-extrabold tracking-tight sm:text-7xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35, duration: 0.6 }}
@@ -133,8 +176,8 @@ export default function Home() {
             transition={{ delay: 0.5, duration: 0.6 }}
           >
             Crie uma sessão, convide seus amigos e deixe o{" "}
-            <span className="font-semibold text-foreground">Pickr</span>{" "}
-            decidir por vocês.
+            <span className="font-semibold text-foreground">Pickr</span> decidir
+            por vocês.
           </motion.p>
 
           {/* Input area */}
@@ -151,24 +194,34 @@ export default function Home() {
                 value={sessionName}
                 onChange={(e) => setSessionName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-                className="h-12 rounded-xl border-border/60 bg-background/80 pl-4 pr-4 text-base shadow-sm backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/50 focus-visible:border-primary/50 focus-visible:ring-primary/20"
+                className="h-12 rounded-xl border-border/60 bg-background/80 pr-4 pl-4 text-base shadow-sm backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/50 focus-visible:border-primary/50 focus-visible:ring-primary/20"
               />
             </div>
             <Button
               onClick={handleCreate}
-              disabled={!sessionName.trim()}
-              className="h-12 gap-2 rounded-xl bg-linear-to-r from-gradient-from to-gradient-to px-6 text-base font-semibold text-primary-foreground shadow-lg shadow-primary-glow ring-1 ring-primary-foreground/20 transition-all duration-200 hover:brightness-[1.06] disabled:opacity-40 disabled:shadow-none"
+              disabled={!sessionName.trim() || isCreating}
+              className="h-12 gap-2 rounded-xl bg-linear-to-r from-gradient-from to-gradient-to px-6 text-base font-semibold text-primary-foreground shadow-lg ring-1 shadow-primary-glow ring-primary-foreground/20 transition-all duration-200 hover:brightness-[1.06] disabled:opacity-40 disabled:shadow-none"
             >
-              Criar sessão
+              {isCreating ? "Criando..." : "Criar sessão"}
               <ArrowRight className="size-4" />
             </Button>
           </motion.div>
+
+          {createError ? (
+            <motion.p
+              className="mt-3 text-sm text-destructive"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              {createError}
+            </motion.p>
+          ) : null}
 
           <motion.div
             className="my-4 flex w-full items-center gap-4 px-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.70, duration: 0.6 }}
+            transition={{ delay: 0.7, duration: 0.6 }}
           >
             <div className="h-px flex-1 bg-border/60" />
             <span className="text-xs font-medium tracking-widest text-muted-foreground/60 uppercase">
@@ -178,49 +231,69 @@ export default function Home() {
           </motion.div>
 
           <motion.div
-            className="w-full"
+            className="w-full space-y-3"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.80, duration: 0.6 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
           >
-            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
-              <Button
-                variant="outline"
-                // onClick={handleJoinSession}
-                className="group h-12 w-full gap-3 rounded-xl border-border/70 bg-card/60 font-display text-sm font-semibold tracking-wide text-foreground/85 backdrop-blur-sm transition-all hover:border-primary/40 hover:bg-card/90 hover:text-foreground"
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Input
+                type="text"
+                placeholder="Ex: ABC12"
+                value={joinCode}
+                onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                onKeyDown={(e) => e.key === "Enter" && handleGoToSession()}
+                className="h-12 rounded-xl border-border/60 bg-card/60 px-4 text-center font-mono text-base tracking-[0.28em] uppercase shadow-sm backdrop-blur-sm sm:text-left"
+              />
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
               >
-                <Users className="size-4 text-muted-foreground transition-colors group-hover:text-primary" />
-                Entrar com código
-              </Button>
-            </motion.div>
+                <Button
+                  variant="outline"
+                  onClick={handleGoToSession}
+                  disabled={!joinCode.trim()}
+                  className="group h-12 w-full gap-3 rounded-xl border-border/70 bg-card/60 px-6 font-display text-sm font-semibold tracking-wide text-foreground/85 backdrop-blur-sm transition-all hover:border-primary/40 hover:bg-card/90 hover:text-foreground sm:w-auto"
+                >
+                  <LogIn className="size-4 text-muted-foreground transition-colors group-hover:text-primary" />
+                  Entrar com código
+                </Button>
+              </motion.div>
+            </div>
+
+            <p className="px-1 text-center text-xs text-muted-foreground/70 sm:text-left">
+              Abra a sala pelo codigo e entre com o seu apelido na proxima tela.
+            </p>
           </motion.div>
 
           {/* Features */}
           <motion.div
-          className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground/50"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.8 }}
-        >
-          {[
-            { icon: Users, label: "Colaboração ao vivo" },
-            { icon: Shuffle, label: "Escolha aleatória" },
-            { icon: Zap, label: "Decisões instantâneas" },
-          ].map((feature, i) => (
-            <motion.div
-              key={feature.label}
-              className="flex items-center gap-1.5"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 + i * 0.1, duration: 0.5 }}
-            >
-              <feature.icon className="h-3.5 w-3.5" />
-              <span className="font-medium tracking-wide">{feature.label}</span>
-            </motion.div>
-          ))}
-        </motion.div>
+            className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground/50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 0.8 }}
+          >
+            {[
+              { icon: Users, label: "Colaboração ao vivo" },
+              { icon: Shuffle, label: "Escolha aleatória" },
+              { icon: Zap, label: "Decisões instantâneas" },
+            ].map((feature, i) => (
+              <motion.div
+                key={feature.label}
+                className="flex items-center gap-1.5"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1 + i * 0.1, duration: 0.5 }}
+              >
+                <feature.icon className="h-3.5 w-3.5" />
+                <span className="font-medium tracking-wide">
+                  {feature.label}
+                </span>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </main>
     </>
-  );
+  )
 }

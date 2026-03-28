@@ -11,6 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as CodeRouteImport } from './routes/$code'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiElectricSessionOptionsRouteImport } from './routes/api/electric/session-options'
+import { Route as ApiElectricSessionMembersRouteImport } from './routes/api/electric/session-members'
+import { Route as ApiElectricSessionRouteImport } from './routes/api/electric/session'
 
 const CodeRoute = CodeRouteImport.update({
   id: '/$code',
@@ -22,31 +25,76 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiElectricSessionOptionsRoute =
+  ApiElectricSessionOptionsRouteImport.update({
+    id: '/api/electric/session-options',
+    path: '/api/electric/session-options',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiElectricSessionMembersRoute =
+  ApiElectricSessionMembersRouteImport.update({
+    id: '/api/electric/session-members',
+    path: '/api/electric/session-members',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiElectricSessionRoute = ApiElectricSessionRouteImport.update({
+  id: '/api/electric/session',
+  path: '/api/electric/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$code': typeof CodeRoute
+  '/api/electric/session': typeof ApiElectricSessionRoute
+  '/api/electric/session-members': typeof ApiElectricSessionMembersRoute
+  '/api/electric/session-options': typeof ApiElectricSessionOptionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$code': typeof CodeRoute
+  '/api/electric/session': typeof ApiElectricSessionRoute
+  '/api/electric/session-members': typeof ApiElectricSessionMembersRoute
+  '/api/electric/session-options': typeof ApiElectricSessionOptionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$code': typeof CodeRoute
+  '/api/electric/session': typeof ApiElectricSessionRoute
+  '/api/electric/session-members': typeof ApiElectricSessionMembersRoute
+  '/api/electric/session-options': typeof ApiElectricSessionOptionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$code'
+  fullPaths:
+    | '/'
+    | '/$code'
+    | '/api/electric/session'
+    | '/api/electric/session-members'
+    | '/api/electric/session-options'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$code'
-  id: '__root__' | '/' | '/$code'
+  to:
+    | '/'
+    | '/$code'
+    | '/api/electric/session'
+    | '/api/electric/session-members'
+    | '/api/electric/session-options'
+  id:
+    | '__root__'
+    | '/'
+    | '/$code'
+    | '/api/electric/session'
+    | '/api/electric/session-members'
+    | '/api/electric/session-options'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CodeRoute: typeof CodeRoute
+  ApiElectricSessionRoute: typeof ApiElectricSessionRoute
+  ApiElectricSessionMembersRoute: typeof ApiElectricSessionMembersRoute
+  ApiElectricSessionOptionsRoute: typeof ApiElectricSessionOptionsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +113,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/electric/session-options': {
+      id: '/api/electric/session-options'
+      path: '/api/electric/session-options'
+      fullPath: '/api/electric/session-options'
+      preLoaderRoute: typeof ApiElectricSessionOptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/electric/session-members': {
+      id: '/api/electric/session-members'
+      path: '/api/electric/session-members'
+      fullPath: '/api/electric/session-members'
+      preLoaderRoute: typeof ApiElectricSessionMembersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/electric/session': {
+      id: '/api/electric/session'
+      path: '/api/electric/session'
+      fullPath: '/api/electric/session'
+      preLoaderRoute: typeof ApiElectricSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CodeRoute: CodeRoute,
+  ApiElectricSessionRoute: ApiElectricSessionRoute,
+  ApiElectricSessionMembersRoute: ApiElectricSessionMembersRoute,
+  ApiElectricSessionOptionsRoute: ApiElectricSessionOptionsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
